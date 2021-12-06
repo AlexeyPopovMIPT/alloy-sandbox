@@ -17,21 +17,33 @@ sig Edge
 
 sig Graph
 {
-    nodes: set Node,
     edges: set Edge
 }
+
+
+
 
 pred hasNode [uv: Edge, n: Node]
 {
 	uv.v = n || uv.u = n
 }
 
-
 pred isCycle [cycle: some Edge]
 {
     all edge: Edge | edge in cycle implies ( 
-    ( one l: Edge | l in cycle => l.hasNode[edge.u] ) &&
-    ( one r: Edge | r in cycle => r.hasNode[edge.v] ))
+    ( one l: Edge | l in cycle && l.hasNode[edge.u] ) &&
+    ( one r: Edge | r in cycle && r.hasNode[edge.v] ))
+}
+
+
+
+
+// 0)
+pred isConnected [g: Graph]
+{
+	//all e1,e2: g.edges | // упорядоченное множество edges, начинающееся
+	// e1 и кончающееся e2
+	1 = 1
 }
 
 // 1)
@@ -41,28 +53,28 @@ pred isAcyclic [g: Graph]
     cycle in g.edges && cycle.isCycle
 }
 
-// 4)
-pred _4 [g: Graph]
-{
-    g.nodes.size = 1 + g.edges.size
-}
-
-check { all g: Graph | g._4 iff g.isAcyclic} for 3 but 10 Graph
 // 3)
 pred minimallyConnected [g: Graph]
 {
-    1 = 1// all edge: edge in g.edges
-    
+    all edge: g.edges |
+		(some g0: Graph |
+			((g0.edges = g.edges - edge) && !g0.isConnected))
 }
 
-// 0)
-pred isConnected [g: Graph]
+// 4)
+pred NodesEdgesPlus1 [g: Graph]
 {
 	1 = 1
+    // g.getNodes.size = 1 + g.edges.size
+	// how to measure size?
 }
 
 
 
+
+
+check { all g: Graph | g.isConnected implies (g.isAcyclic iff g.minimallyConnected)}
+for 3 but 10 Graph
 
 
 
